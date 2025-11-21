@@ -147,92 +147,41 @@ drug_database = [
 # 3rd Order: Management -> Complication -> Mechanism
 
 quiz_bank = [
-    # --- 1st ORDER QUESTIONS ---
     {
-        "q": "Which drug inhibits cell wall synthesis by binding to the D-Ala-D-Ala terminus of the peptidoglycan precursor?",
-        "options": ["Penicillin G", "Ceftriaxone", "Vancomycin", "Fosfomycin"],
-        "answer": "Vancomycin",
-        "expl": "Vancomycin binds D-Ala-D-Ala, preventing cross-linking. Beta-lactams bind PBPs. Fosfomycin inhibits MurA[cite: 964]."
+        "q": "Target: D-Ala-D-Ala. Drug?", 
+        "opt": ["Vancomycin", "Penicillin", "Daptomycin"], 
+        "ans": "Vancomycin", 
+        "expl": "Vancomycin binds the D-Ala-D-Ala tail, blocking polymerization[cite: 997, 987]."
     },
     {
-        "q": "Which Cephalosporin generation is the only one with activity against MRSA?",
-        "options": ["1st Gen (Cefazolin)", "3rd Gen (Ceftriaxone)", "4th Gen (Cefepime)", "5th Gen (Ceftaroline)"],
-        "answer": "5th Gen (Ceftaroline)",
-        "expl": "Ceftaroline is the only beta-lactam active against MRSA because it binds the mutated PBP2a[cite: 745]."
+        "q": "Patient has Pseudomonas. Penicillin allergy (Anaphylaxis). Safe choice?", 
+        "opt": ["Piperacillin", "Cefepime", "Aztreonam"], 
+        "ans": "Aztreonam", 
+        [cite_start]"expl": "Monobactams (Aztreonam) have no cross-reactivity with Penicillins[cite: 796]."
     },
     {
-        "q": "What is the specific mechanism of action of Daptomycin?",
-        "options": ["Binds PBP", "Binds D-Ala-D-Ala", "Inhibits Enolpyruvyl Transferase", "Causes Membrane Depolarization"],
-        "answer": "Causes Membrane Depolarization",
-        "expl": "Daptomycin inserts into the plasma membrane causing rapid depolarization and cell death[cite: 1031]."
-    },
-    # --- 2nd ORDER QUESTIONS ---
-    {
-        "q": "A patient has a confirmed Pseudomonas aeruginosa pneumonia. Which Penicillin class is appropriate?",
-        "options": ["Natural Penicillin", "Aminopenicillin", "Antipseudomonal Penicillin", "Anti-staphylococcal Penicillin"],
-        "answer": "Antipseudomonal Penicillin",
-        "expl": "Only Piperacillin or Ticarcillin cover Pseudomonas. Aminopenicillins (Ampicillin) do NOT[cite: 561]."
+        "q": "Which drug is inactivated by Lung Surfactant?", 
+        "opt": ["Daptomycin", "Linezolid", "Ceftaroline"], 
+        "ans": "Daptomycin", 
+        [cite_start]"expl": "Daptomycin is inactivated by pulmonary surfactant, so it cannot treat pneumonia[cite: 1172]."
     },
     {
-        "q": "A pregnant patient has Syphilis (Treponema pallidum). What is the drug of choice?",
-        "options": ["Penicillin G", "Vancomycin", "Aztreonam", "Cefepime"],
-        "answer": "Penicillin G",
-        "expl": "Penicillin G is the drug of choice for Syphilis[cite: 458]."
+        "q": "Drug causing 'Red Man Syndrome'?", 
+        "opt": ["Vancomycin", "Nafcillin", "Cefotetan"], 
+        "ans": "Vancomycin", 
+        [cite_start]"expl": "This is a histamine-mediated reaction caused by rapid infusion[cite: 1023]."
     },
     {
-        "q": "A patient presents with a urinary tract infection. You prescribe Fosfomycin. Why is this drug effective for UTIs?",
-        "options": ["It covers MRSA systemically", "It concentrates active drug in the bladder", "It is given IV only", "It treats Pyelonephritis only"],
-        "answer": "It concentrates active drug in the bladder",
-        "expl": "Fosfomycin is excreted by the kidneys and accumulates in the bladder, making it ideal for uncomplicated UTIs[cite: 1093]."
+        "q": "Only Cephalosporin active against MRSA?", 
+        "opt": ["Ceftaroline", "Cefepime", "Ceftriaxone"], 
+        "ans": "Ceftaroline", 
+        [cite_start]"expl": "5th Gen Ceftaroline binds to the mutated PBP2a found in MRSA[cite: 745]."
     },
     {
-        "q": "A patient has meningitis. Which generation of Cephalosporins is most commonly used due to excellent CNS penetration?",
-        "options": ["1st Gen", "2nd Gen", "3rd Gen", "1st Gen Oral"],
-        "answer": "3rd Gen",
-        "expl": "3rd Gen Cephalosporins (like Ceftriaxone) cross the blood-brain barrier well and are used for meningitis[cite: 695]."
-    },
-    # --- 3rd ORDER QUESTIONS ---
-    {
-        "q": "A patient is treated for a severe gram-negative infection with Imipenem. They suffer a seizure. What was the likely risk factor?",
-        "options": ["Liver failure", "Renal failure/High dose", "Concomitant use of Penicillin", "Low dose therapy"],
-        "answer": "Renal failure/High dose",
-        "expl": "Seizures are a known ADR of Imipenem, especially in patients with renal impairment or high doses[cite: 808]."
-    },
-    {
-        "q": "A patient with MRSA pneumonia is treated with an IV antibiotic and fails to improve. You realize the drug chosen is inactivated by pulmonary surfactant. Which drug was likely used?",
-        "options": ["Vancomycin", "Linezolid", "Daptomycin", "Ceftaroline"],
-        "answer": "Daptomycin",
-        "expl": "Daptomycin is inactivated by surfactant, so it is contraindicated for pneumonia despite covering MRSA[cite: 1067]."
-    },
-    {
-        "q": "A patient receives Cefotetan and later consumes alcohol, developing flushing and nausea. What is the mechanism?",
-        "options": ["IgE Mediated Allergy", "Disulfiram-like reaction", "Red Man Syndrome", "Neurotoxicity"],
-        "answer": "Disulfiram-like reaction",
-        "expl": "Cefotetan (and Cefoxitin) can block alcohol oxidation, leading to a Disulfiram-like reaction[cite: 766]."
-    },
-    {
-        "q": "A patient on Nafcillin develops neutropenia. What is the route of elimination for this specific drug?",
-        "options": ["Renal Filtration", "Biliary Excretion", "Lung Exhalation", "Sweat"],
-        "answer": "Biliary Excretion",
-        "expl": "Nafcillin is unique among penicillins as it is primarily eliminated via biliary excretion (liver), not kidneys[cite: 536]."
-    },
-    {
-        "q": "A patient develops 'Red Man Syndrome' during an infusion. This reaction is mediated by:",
-        "options": ["IgE Antibodies", "T-Cell activation", "Direct Histamine Release", "Renal toxicity"],
-        "answer": "Direct Histamine Release",
-        "expl": "This is a histamine-mediated flushing syndrome caused by rapid infusion of Vancomycin, NOT an IgE allergy[cite: 1023]."
-    },
-     {
-        "q": "You need to treat a Pseudomonas infection but the patient has a severe anaphylactic reaction to Penicillins. Which drug is safest?",
-        "options": ["Cefepime", "Imipenem", "Aztreonam", "Piperacillin"],
-        "answer": "Aztreonam",
-        "expl": "Aztreonam (Monobactam) has little to no cross-reactivity with Penicillins and is safe for allergic patients[cite: 796]."
-    },
-    {
-        "q": "Which combination represents a Penicillin paired with a Beta-Lactamase Inhibitor?",
-        "options": ["Ampicillin + Sulbactam", "Amoxicillin + Azithromycin", "Piperacillin + Cilastatin", "Penicillin G + Clavulanate"],
-        "answer": "Ampicillin + Sulbactam",
-        "expl": "Ampicillin is often paired with Sulbactam (Unasyn) to restore activity against beta-lactamase producing organisms[cite: 548]."
+        "q": "3rd Gen Cephalosporin that covers Pseudomonas?", 
+        "opt": ["Ceftazidime", "Ceftriaxone", "Cefotaxime"], 
+        "ans": "Ceftazidime", 
+        [cite_start]"expl": "Ceftazidime is the specific 3rd gen agent with useful activity against Pseudomonas[cite: 697]."
     }
 ]
 
