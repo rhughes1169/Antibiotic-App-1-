@@ -1,293 +1,11 @@
 import streamlit as st
 import random
-
-# --- CONFIGURATION FOR IPAD ---
-st.set_page_config(
-    page_title="Antibiotic Master", 
-    layout="centered",
-    initial_sidebar_state="collapsed"
-)
-
-# --- CUSTOM CSS FOR TOUCH INTERFACE (IPAD) ---
-st.markdown("""
-<style>
-    div.stButton > button {
-        width: 100%;
-        height: 3.5em;
-        font-size: 18px !important;
-        font-weight: bold;
-        border-radius: 12px;
-    }
-    div.stRadio > div {
-        gap: 15px;
-        font-size: 18px;
-    }
-    .streamlit-expanderHeader {
-        font-size: 18px;
-        font-weight: bold;
-        background-color: #f0f2f6;
-        border-radius: 10px;
-    }
-    h1, h2, h3 {
-        font-family: 'Helvetica', sans-serif;
-    }
-</style>
-""", unsafe_allow_html=True)
-
-# --- DATA SOURCE (Based on your PDF) ---
-drug_database = [
-    # --- PENICILLINS ---
-    {
-        "class": "Natural Penicillins (Group 1)",
-        "drugs": "Penicillin G (IV/IM), Penicillin V (PO)",
-        "spectrum": "Narrow: Gram-positive (Strep, Syphilis/Treponema, Meningococcus).",
-        "adrs": "Hypersensitivity, Neurotoxicity (seizures), Renal failure[cite: 588].",
-        "notes": "Susceptible to beta-lactamases (>90% S. aureus resistant). Pen G Benzathine is IM repository[cite: 468]."
-    },
-    {
-        "class": "Anti-staphylococcal Penicillins (Group 2)",
-        "drugs": "Methicillin, Nafcillin (IV), Oxacillin (IV), Dicloxacillin (PO) [cite: 511]",
-        "spectrum": "MSSA (Methicillin-Sensitive Staph Aureus) & Strep.",
-        "adrs": "Nafcillin: Phlebitis, Neutropenia. Methicillin: Interstitial Nephritis[cite: 523].",
-        "notes": "Nafcillin is biliary excreted (liver), so no renal adjustment needed. NOT effective for MRSA[cite: 536]."
-    },
-    {
-        "class": "Aminopenicillins (Group 3)",
-        "drugs": "Ampicillin (IV), Amoxicillin (PO) [cite: 546]",
-        "spectrum": "Gram-pos + some Gram-neg (H. flu, E. coli, Listeria).",
-        "adrs": "Rash (non-allergic), Diarrhea.",
-        "notes": "Often paired with beta-lactamase inhibitors (e.g., Amox/Clavulanate). Listeria requires Ampicillin[cite: 554]."
-    },
-    {
-        "class": "Antipseudomonal Penicillins (Group 4)",
-        "drugs": "Piperacillin, Ticarcillin [cite: 561]",
-        "spectrum": "Pseudomonas aeruginosa, Klebsiella.",
-        "adrs": "Bleeding risk (platelet dysfunction) at high doses[cite: 567].",
-        "notes": "Piperacillin is the only one available in USA (as Pip/Tazo)[cite: 562]."
-    },
-    # --- CEPHALOSPORINS ---
-    {
-        "class": "1st Gen Cephalosporins",
-        # Added Cefadroxil per request and PDF 
-        "drugs": "Cefazolin (IV), Cephalexin (PO), Cefadroxil (PO)",
-        "spectrum": "Gram-positive (MSSA, Strep) + PEcK (Proteus, E. coli, Klebsiella)[cite: 648].",
-        "adrs": "Cross-reactivity with Penicillin allergy.",
-        "notes": "Cefazolin is used for surgical prophylaxis. NOT for severe systemic infections (PO)[cite: 650]."
-    },
-    {
-        "class": "2nd Gen Cephalosporins",
-        "drugs": "Cefuroxime, Cefoxitin (IV), Cefotetan (IV) [cite: 676]",
-        "spectrum": "Gram-pos + H. flu, Neisseria (HEN PEcK).",
-        "adrs": "Cefotetan: Bleeding (anti-Vit K) & Disulfiram-like reaction with alcohol[cite: 765].",
-        "notes": "Cefoxitin/Cefotetan have anaerobic activity (B. fragilis)[cite: 678]."
-    },
-    {
-        "class": "3rd Gen Cephalosporins",
-        # Added Cefotaxime and Cefpodoxime per request and PDF 
-        "drugs": "Ceftriaxone (IV), Cefotaxime (IV), Ceftazidime (IV), Cefdinir (PO), Cefpodoxime (PO)",
-        "spectrum": "Expanded Gram-neg. Crosses Blood-Brain Barrier (Meningitis).",
-        "adrs": "Biliary sludging (Ceftriaxone).",
-        "notes": "Ceftazidime is the ONLY 3rd gen active against Pseudomonas[cite: 697]. Ceftriaxone treats Gonorrhea[cite: 700]."
-    },
-    {
-        "class": "4th Gen Cephalosporins",
-        "drugs": "Cefepime (IV) [cite: 715]",
-        "spectrum": "Broadest Ceph. Gram-pos + Gram-neg + Pseudomonas.",
-        "adrs": "Encephalopathy (neurotoxicity)[cite: 726].",
-        "notes": "Stable against beta-lactamases[cite: 718]."
-    },
-    {
-        "class": "5th Gen Cephalosporins",
-        "drugs": "Ceftaroline (IV) [cite: 743]",
-        "spectrum": "Anti-MRSA.",
-        "adrs": "Standard beta-lactam ADRs.",
-        "notes": "Binds to PBP2a (mutated PBP in MRSA). Does NOT cover Pseudomonas[cite: 745]."
-    },
-    # --- OTHERS ---
-    {
-        "class": "Carbapenems",
-        "drugs": "Imipenem/Cilastatin, Meropenem, Ertapenem [cite: 799]",
-        "spectrum": "Very Broad: Gram+, Gram-, Anaerobes, Pseudomonas (except Ertapenem)[cite: 800].",
-        "adrs": "Seizures (Imipenem risk > Meropenem)[cite: 808].",
-        "notes": "Cilastatin inhibits renal dehydropeptidase to prevent Imipenem toxicity[cite: 807]."
-    },
-    {
-        "class": "Monobactams",
-        "drugs": "Aztreonam [cite: 772]",
-        "spectrum": "Gram-negative AEROBES only (includes Pseudomonas)[cite: 773].",
-        "adrs": "Low toxicity.",
-        "notes": "Safe for patients with Penicillin anaphylaxis (no cross-reactivity)[cite: 796]."
-    },
-    {
-        "class": "Glycopeptides",
-        "drugs": "Vancomycin (IV/PO) [cite: 889]",
-        "spectrum": "Gram-positive ONLY. MRSA. C. diff (PO only).",
-        "adrs": "Red Man Syndrome (flushing), Ototoxicity, Nephrotoxicity[cite: 1023].",
-        "notes": "Inhibits polymerization by binding D-Ala-D-Ala[cite: 964]. PO stays in gut[cite: 1001]."
-    },
-    {
-        "class": "Lipopeptides",
-        "drugs": "Daptomycin (IV) [cite: 1029]",
-        "spectrum": "Gram-positive ONLY. MRSA, VRE.",
-        "adrs": "Myopathy (monitor CPK weekly)[cite: 1066].",
-        "notes": "Inactivated by pulmonary surfactant (Do NOT use for Pneumonia)[cite: 1172]. MOA: Depolarization."
-    },
-    {
-        "class": "Others",
-        "drugs": "Fosfomycin [cite: 1088]",
-        "spectrum": "Gram+ and Gram-.",
-        "adrs": "Diarrhea, vaginitis.",
-        "notes": "Inhibits MurA (enolpyruvyl transferase)[cite: 1089]. Concentrates in bladder (UTIs)."
-    }
-]
-
-# --- QUESTION BANK (MIXED ORDER) ---
-# 1st Order: Fact Recall
-# 2nd Order: Diagnosis -> Treatment
-# 3rd Order: Management -> Complication -> Mechanism
-
-quiz_bank = [
-    {
-        "q": "Target: D-Ala-D-Ala. Drug?", 
-        "opt": ["Vancomycin", "Penicillin", "Daptomycin"], 
-        "ans": "Vancomycin", 
-        "expl": "Vancomycin binds the D-Ala-D-Ala tail, blocking polymerization[cite: 997, 987]."
-    },
-    {
-        "q": "Patient has Pseudomonas. Penicillin allergy (Anaphylaxis). Safe choice?", 
-        "opt": ["Piperacillin", "Cefepime", "Aztreonam"], 
-        "ans": "Aztreonam", 
-        [cite_start]"expl": "Monobactams (Aztreonam) have no cross-reactivity with Penicillins[cite: 796]."
-    },
-    {
-        "q": "Which drug is inactivated by Lung Surfactant?", 
-        "opt": ["Daptomycin", "Linezolid", "Ceftaroline"], 
-        "ans": "Daptomycin", 
-        [cite_start]"expl": "Daptomycin is inactivated by pulmonary surfactant, so it cannot treat pneumonia[cite: 1172]."
-    },
-    {
-        "q": "Drug causing 'Red Man Syndrome'?", 
-        "opt": ["Vancomycin", "Nafcillin", "Cefotetan"], 
-        "ans": "Vancomycin", 
-        [cite_start]"expl": "This is a histamine-mediated reaction caused by rapid infusion[cite: 1023]."
-    },
-    {
-        "q": "Only Cephalosporin active against MRSA?", 
-        "opt": ["Ceftaroline", "Cefepime", "Ceftriaxone"], 
-        "ans": "Ceftaroline", 
-        [cite_start]"expl": "5th Gen Ceftaroline binds to the mutated PBP2a found in MRSA[cite: 745]."
-    },
-    {
-        "q": "3rd Gen Cephalosporin that covers Pseudomonas?", 
-        "opt": ["Ceftazidime", "Ceftriaxone", "Cefotaxime"], 
-        "ans": "Ceftazidime", 
-        [cite_start]"expl": "Ceftazidime is the specific 3rd gen agent with useful activity against Pseudomonas[cite: 697]."
-    }
-]
-
-# --- APP HEADER ---
-st.title("💊 Cell Wall Master")
-st.caption("Interactive Study Companion | Updated with PDF Source Material")
-
-# --- TABS (Navigation) ---
-tab1, tab2, tab3 = st.tabs(["⚡ Flashcards", "📚 Library", "🧠 Quiz Bank"])
-
-# --- TAB 1: FLASHCARDS (Touch Optimized) ---
-with tab1:
-    st.markdown("### Active Recall")
-    
-    if 'flashcard_idx' not in st.session_state:
-        st.session_state.flashcard_idx = random.randint(0, len(drug_database)-1)
-        st.session_state.reveal_card = False
-
-    current_card = drug_database[st.session_state.flashcard_idx]
-
-    with st.container(border=True):
-        st.markdown(f"**Drug Class:**")
-        st.header(current_card['class'])
-        st.divider()
-        
-        if st.session_state.reveal_card:
-            st.success(f"**💊 Drugs:** {current_card['drugs']}")
-            st.info(f"**🦠 Spectrum:** {current_card['spectrum']}")
-            st.warning(f"**⚠️ ADRs:** {current_card['adrs']}")
-            st.markdown(f"**📝 Note:** {current_card['notes']}")
-        else:
-            st.markdown("*Tap 'Reveal' to see Drugs, Spectrum, and ADRs*")
-            st.markdown("<br>" * 3, unsafe_allow_html=True)
-
-    col_a, col_b = st.columns(2)
-    with col_a:
-        if st.button("👁️ REVEAL", use_container_width=True):
-            st.session_state.reveal_card = True
-            st.rerun()
-    with col_b:
-        if st.button("➡️ NEXT CARD", type="primary", use_container_width=True):
-            st.session_state.flashcard_idx = random.randint(0, len(drug_database)-1)
-            st.session_state.reveal_card = False
-            st.rerun()
-
-# --- TAB 2: LIBRARY ---
-with tab2:
-    st.markdown("### Drug Class Reference")
-    st.markdown("Tap to expand details.")
-    
-    for item in drug_database:
-        with st.expander(item['class']):
-            st.markdown(f"**Drugs:** {item['drugs']}")
-            st.markdown(f"**Spectrum:** {item['spectrum']}")
-            st.markdown(f"**ADRs:** {item['adrs']}")
-            st.caption(f"*{item['notes']}*")
-
-# --- TAB 3: QUIZ BANK (RANDOMIZED) ---
-with tab3:
-    st.markdown("### Mixed Order Question Bank")
-    st.caption("Randomly selects 1st, 2nd, and 3rd order questions.")
-
-    # Initialize session state for the quiz
-    if 'quiz_index' not in st.session_state:
-        st.session_state.quiz_index = random.randint(0, len(quiz_bank)-1)
-        st.session_state.quiz_submitted = False
-        st.session_state.selected_opt = None
-
-    q = quiz_bank[st.session_state.quiz_index]
-
-    st.progress((st.session_state.quiz_index + 1) / len(quiz_bank), text=f"Question Pool ID: {st.session_state.quiz_index}")
-
-    st.subheader(q['q'])
-    
-    # Radio button for selection
-    # We use a placeholder key that changes when we hit 'next' to reset the selection
-    choice = st.radio(
-        "Select your answer:", 
-        q['options'], 
-        index=None,
-        key=f"radio_{st.session_state.quiz_index}" 
-    )
-
-    # Check Answer Button
-    if st.button("Check Answer", type="primary", use_container_width=True):
-        if choice == q['answer']:
-            st.success(f"✅ Correct! \n\n**Explanation:** {q['expl']}")
-        elif choice is None:
-            st.warning("Please select an answer.")
-        else:
-            st.error(f"❌ Incorrect. \n\nThe correct answer is **{q['answer']}**.\n\n**Explanation:** {q['expl']}")
-
-    st.divider()
-
-    # Next Question Button
-    if st.button("➡️ New Random Question", use_container_width=True):
-        st.session_state.quiz_index = random.randint(0, len(quiz_bank)-1)
-        st.rerun()
-        import streamlit as st
-import random
 import graphviz
 
 # --- CONFIGURATION ---
 st.set_page_config(
     page_title="Antibiotic Master Visual", 
-    layout="wide", # Wide layout is better for diagrams
+    layout="wide", 
     initial_sidebar_state="expanded"
 )
 
@@ -312,7 +30,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# [cite_start]--- DATA SOURCE [cite: 412, 626, 771, 888, 1029] ---
+# --- DATA SOURCE ---
 drug_database = [
     # PENICILLINS
     {"class": "Natural Penicillins", "drugs": "Penicillin G, Penicillin V", "spectrum": "Gram(+) Narrow: Strep, Syphilis.", "adrs": "Seizures (high dose), Hypersensitivity.", "notes": "Susceptible to Beta-Lactamases."},
@@ -334,12 +52,42 @@ drug_database = [
 ]
 
 quiz_bank = [
-    {"q": "Target: D-Ala-D-Ala. [cite_start]Drug?", "opt": ["Vancomycin", "Penicillin", "Daptomycin"], "ans": "Vancomycin", "expl": "Vancomycin binds the D-Ala-D-Ala tail[cite: 987]."},
-    {"q": "Patient has Pseudomonas. Penicillin allergy (Anaphylaxis). [cite_start]Safe choice?", "opt": ["Piperacillin", "Cefepime", "Aztreonam"], "ans": "Aztreonam", "expl": "Monobactams have no cross-reactivity[cite: 796]."},
-    [cite_start]{"q": "Which drug is inactivated by Lung Surfactant?", "opt": ["Daptomycin", "Linezolid", "Ceftaroline"], "ans": "Daptomycin", "expl": "Daptomycin cannot treat pneumonia[cite: 1172]."},
-    [cite_start]{"q": "Drug causing 'Red Man Syndrome'?", "opt": ["Vancomycin", "Nafcillin", "Cefotetan"], "ans": "Vancomycin", "expl": "Histamine release due to rapid infusion[cite: 1023]."},
-    [cite_start]{"q": "Only Cephalosporin active against MRSA?", "opt": ["Ceftaroline", "Cefepime", "Ceftriaxone"], "ans": "Ceftaroline", "expl": "5th Gen Ceftaroline binds PBP2a[cite: 744]."},
-    [cite_start]{"q": "3rd Gen Cephalosporin that covers Pseudomonas?", "opt": ["Ceftazidime", "Ceftriaxone", "Cefotaxime"], "ans": "Ceftazidime", "expl": "Ceftazidime is the specific 3rd gen for Pseudomonas[cite: 697]."},
+    {
+        "q": "Target: D-Ala-D-Ala. Drug?", 
+        "opt": ["Vancomycin", "Penicillin", "Daptomycin"], 
+        "ans": "Vancomycin", 
+        "expl": "Vancomycin binds the D-Ala-D-Ala tail."
+    },
+    {
+        "q": "Patient has Pseudomonas. Penicillin allergy (Anaphylaxis). Safe choice?", 
+        "opt": ["Piperacillin", "Cefepime", "Aztreonam"], 
+        "ans": "Aztreonam", 
+        "expl": "Monobactams have no cross-reactivity."
+    },
+    {
+        "q": "Which drug is inactivated by Lung Surfactant?", 
+        "opt": ["Daptomycin", "Linezolid", "Ceftaroline"], 
+        "ans": "Daptomycin", 
+        "expl": "Daptomycin cannot treat pneumonia."
+    },
+    {
+        "q": "Drug causing 'Red Man Syndrome'?", 
+        "opt": ["Vancomycin", "Nafcillin", "Cefotetan"], 
+        "ans": "Vancomycin", 
+        "expl": "Histamine release due to rapid infusion."
+    },
+    {
+        "q": "Only Cephalosporin active against MRSA?", 
+        "opt": ["Ceftaroline", "Cefepime", "Ceftriaxone"], 
+        "ans": "Ceftaroline", 
+        "expl": "5th Gen Ceftaroline binds PBP2a."
+    },
+    {
+        "q": "3rd Gen Cephalosporin that covers Pseudomonas?", 
+        "opt": ["Ceftazidime", "Ceftriaxone", "Cefotaxime"], 
+        "ans": "Ceftazidime", 
+        "expl": "Ceftazidime is the specific 3rd gen for Pseudomonas."
+    }
 ]
 
 # --- SESSION STATE ---
@@ -372,7 +120,7 @@ with tabs[0]:
     
     with col1:
         st.subheader("1. Mechanism of Action")
-        # [cite_start]Graphviz code to visualize MOA [cite: 280-287, 1029, 1089]
+        # Graphviz code to visualize MOA
         moa_graph = graphviz.Digraph()
         moa_graph.attr(rankdir='TB')
         
@@ -401,7 +149,7 @@ with tabs[0]:
 
     with col2:
         st.subheader("2. Cephalosporin Generations")
-        # [cite_start]Graphviz for Cephalosporins [cite: 626-759]
+        # Graphviz for Cephalosporins
         ceph_graph = graphviz.Digraph()
         
         ceph_graph.node('1', '1st Gen\n(Cefazolin)', shape='box')
